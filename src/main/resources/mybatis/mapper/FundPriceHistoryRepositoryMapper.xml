@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="li.dongpo.home.repository.FundPriceHistoryRepository">
+
+    <resultMap id="BaseResultMap" type="li.dongpo.home.model.FundPriceHistory">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <id column="fund_info_id" property="fundInfoId" jdbcType="BIGINT"/>
+        <id column="name" property="name" jdbcType="VARCHAR"/>
+        <id column="code" property="code" jdbcType="VARCHAR"/>
+        <id column="trade_date" property="tradeDate" jdbcType="VARCHAR"/>
+        <id column="price" property="price" jdbcType="NUMERIC"/>
+        <id column="trading_day" property="tradingDay" jdbcType="NUMERIC"/>
+        <id column="create_time" property="createTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="PairResultMap" type="li.dongpo.home.model.FundPriceHistory">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <id column="fund_info_id" property="fundInfoId" jdbcType="BIGINT"/>
+        <id column="name" property="name" jdbcType="VARCHAR"/>
+        <id column="code" property="code" jdbcType="VARCHAR"/>
+        <id column="trade_date" property="tradeDate" jdbcType="VARCHAR"/>
+        <id column="price" property="price" jdbcType="NUMERIC"/>
+        <id column="trading_day" property="tradingDay" jdbcType="NUMERIC"/>
+        <id column="create_time" property="createTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Select_Column">
+        id, fund_info_id, name, code, trade_date, price, trading_day, create_time
+    </sql>
+
+    <select id="insert">
+        INSERT INTO t_fund_price_history(fund_info_id, name, code, trade_date, price, trading_day)
+        VALUES(#{fundInfoId}, #{name}, #{code}, #{tradeDate}, #{price}, #{tradingDay})
+    </select>
+
+    <select id="findLatestPrice" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Select_Column" />
+        FROM t_fund_price_history
+        WHERE fund_info_id=#{fundInfoId}
+        ORDER BY trade_date DESC
+        LIMIT 0, #{days}
+    </select>
+
+    <select id="findExtremePrice" resultType="Pair">
+        select min(price) as left, max(price) as right from (
+            select <include refid="Base_Select_Column" />
+            from t_fund_price_history
+            where fund_info_id=#{fundInfoId}
+            order by trade_date desc
+            limit 0, #{days}
+        )
+    </select>
+
+</mapper>

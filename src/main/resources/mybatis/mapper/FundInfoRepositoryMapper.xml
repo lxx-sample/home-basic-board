@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="li.dongpo.home.repository.FundInfoRepository">
+
+    <resultMap id="BaseResultMap" type="li.dongpo.home.model.FundInfo">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <id column="name" property="name" jdbcType="VARCHAR"/>
+        <id column="code" property="code" jdbcType="VARCHAR"/>
+        <id column="buy_charge_rate" property="buyChargeRate" jdbcType="NUMERIC"/>
+        <id column="sell_charge_rate" property="sellChargeRate" jdbcType="NUMERIC"/>
+        <id column="create_time" property="createTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Select_Column">
+        id, name, code, buy_charge_rate, sell_charge_rate, create_time
+    </sql>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Select_Column"/>
+        FROM t_fund_info
+        WHERE id=#{id}
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Select_Column"/>
+        FROM t_fund_info
+    </select>
+
+
+</mapper>
