@@ -1,17 +1,13 @@
 package li.dongpo.home.schedule;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import li.dongpo.home.model.FundInfo;
-import li.dongpo.home.model.FundPriceHistory;
 import li.dongpo.home.repository.FundInfoRepository;
 import li.dongpo.home.repository.FundPriceHistoryRepository;
+import li.dongpo.home.service.MailSenderService;
 import li.dongpo.home.service.fund.FundPriceFetcher;
 import li.dongpo.home.service.fund.FundPriceFetcher.PriceObject;
 import li.dongpo.home.service.fund.FundPriceZOFetcher;
-import li.dongpo.home.utils.HttpUtils;
-import li.dongpo.home.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +20,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author dongpo.li
@@ -38,6 +33,8 @@ public class FundInfoTask {
     private FundInfoRepository fundInfoRepository;
     @Autowired
     private FundPriceHistoryRepository fundPriceHistoryRepository;
+    @Autowired
+    private MailSenderService mailSenderService;
 
     /**
      * 每天早上9点更新昨天的基金净值
@@ -86,19 +83,32 @@ public class FundInfoTask {
 
             if (StringUtils.equals(today, priceObject.getDate())) {
                 // 当天净值,说明今天是交易日
-                Pair<Double, Double> extremePrice = fundPriceHistoryRepository.findExtremePrice(fundInfo.getId(), 1);
 
-                BigDecimal min = BigDecimal.valueOf(extremePrice.getLeft());
-                BigDecimal max = BigDecimal.valueOf(extremePrice.getRight());
 
-                String threshold = "0";
+                List<Pair<Integer, BigDecimal>> thresholdConfigList = List.of(
+                        Pair.of(1, BigDecimal.valueOf(3)),
+                        Pair.of(2, BigDecimal.valueOf(7))
+                );
 
-                // 计算涨跌幅
-                BigDecimal priceChangeRate = calcPriceChangeRate(new BigDecimal(priceObject.getPrice()), min);
-                if (new BigDecimal(threshold).compareTo(priceChangeRate) <= 0) {
-                    logger.info("3日涨跌幅超过{}%", threshold);
+                for (Pair<Integer, BigDecimal> threshold : thresholdConfigList) {
+                    Pair<Double, Double> extremePrice = fundPriceHistoryRepository.findExtremePrice(fundInfo.getId(), threshold.getLeft());
+
+                    BigDecimal min = BigDecimal.valueOf(extremePrice.getLeft());
+                    BigDecimal max = BigDecimal.valueOf(extremePrice.getRight());
+
+                    for (BigDecimal decimal : List.of(min, max)) {
+                        // 计算涨跌幅
+                        BigDecimal priceChangeRate = calcPriceChangeRate(new BigDecimal(priceObject.getPrice()), decimal);
+                        if (threshold.getRight().compareTo(priceChangeRate) <= 0) {
+                            logger.info("{}日涨跌预警, {}%", threshold.getLeft(), threshold.getRight());
+
+                            String subject = fundInfo.getName() + " 涨跌预警";
+                            String text = fundInfo.getName() + " " + threshold.getLeft() + "日涨跌超" + threshold.getRight() + "%";
+                            mailSenderService.sendSimpleMailMessage(subject, text);
+                        }
+                    }
+
                 }
-
             }
 
         }
