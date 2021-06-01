@@ -37,5 +37,5 @@ out/
 
 .DS_Store
 
-application-dev.properties
+**/application-dev.properties
 
