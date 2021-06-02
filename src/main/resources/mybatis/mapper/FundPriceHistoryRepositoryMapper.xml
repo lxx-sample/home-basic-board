@@ -13,17 +13,6 @@
         <id column="create_time" property="createTime" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <resultMap id="PairResultMap" type="li.dongpo.home.model.FundPriceHistory">
-        <id column="id" property="id" jdbcType="BIGINT"/>
-        <id column="fund_info_id" property="fundInfoId" jdbcType="BIGINT"/>
-        <id column="name" property="name" jdbcType="VARCHAR"/>
-        <id column="code" property="code" jdbcType="VARCHAR"/>
-        <id column="trade_date" property="tradeDate" jdbcType="VARCHAR"/>
-        <id column="price" property="price" jdbcType="NUMERIC"/>
-        <id column="trading_day" property="tradingDay" jdbcType="NUMERIC"/>
-        <id column="create_time" property="createTime" jdbcType="VARCHAR"/>
-    </resultMap>
-
     <sql id="Base_Select_Column">
         id, fund_info_id, name, code, trade_date, price, trading_day, create_time
     </sql>

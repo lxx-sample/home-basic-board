@@ -14,7 +14,7 @@ public class MailSenderServiceTest extends BaseTest {
     private MailSenderService mailSenderService;
 
     @Test
-    public void test() {
+    public void testSendSimpleMailMessage() {
         mailSenderService.sendSimpleMailMessage("测试邮件", "这是一封测试邮件");
     }
 
