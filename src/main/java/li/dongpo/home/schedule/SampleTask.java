@@ -21,7 +21,7 @@ import java.util.Set;
  * @author dongpo.li
  * @date 2021/5/27
  */
-@Component
+//@Component
 public class SampleTask {
 
     @Scheduled(cron = "*/1 * * * * ?")

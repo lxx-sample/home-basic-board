@@ -25,6 +25,7 @@ dependencies {
 	implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.34.0'
 	implementation group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: '2.1.4'
 	implementation group: 'net.sourceforge.htmlcleaner', name: 'htmlcleaner', version: '2.24'
+	implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
 
 }
 

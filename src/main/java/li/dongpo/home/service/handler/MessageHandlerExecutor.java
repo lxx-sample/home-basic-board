@@ -1,7 +1,9 @@
 package li.dongpo.home.service.handler;
 
 import li.dongpo.home.manager.MessageHandlerManager;
+import li.dongpo.home.manager.RequestContextHolder;
 import li.dongpo.home.model.dto.MessageObject;
+import li.dongpo.home.service.MessageSender;
 import li.dongpo.home.utils.JsonUtils;
 import li.dongpo.home.utils.SpringContextUtils;
 import org.slf4j.Logger;
@@ -56,6 +58,7 @@ public class MessageHandlerExecutor {
                 return;
             }
 
+
             Class<?> clazz = MessageHandlerManager.get(messageObject.getHandler());
             if (clazz == null) {
                 logger.error("no such handler: {}", messageObject.getHandler());
@@ -63,17 +66,25 @@ public class MessageHandlerExecutor {
             }
 
             Object handler = SpringContextUtils.getApplicationContext().getBean(clazz);
+
+            RequestContextHolder.set(session, messageObject);
             try {
-                Method method = clazz.getMethod(messageObject.getMethod(), Session.class, MessageObject.class);
+                Method method = clazz.getMethod(messageObject.getMethod());
 
                 try {
-                    method.invoke(handler, session, messageObject);
+                    Object response = method.invoke(handler);
+                    if (response instanceof MessageObject) {
+                        MessageSender sender = new MessageSender(session, (MessageObject) response);
+                        sender.sendText();
+                    }
                 } catch (Throwable e) {
                     logger.error("handler invoke exception", e);
                 }
 
             } catch (NoSuchMethodException e) {
                 logger.error("fetch handler exception", e);
+            } finally {
+                RequestContextHolder.remove();
             }
         }
     }
