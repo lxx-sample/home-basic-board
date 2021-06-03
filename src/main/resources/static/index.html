@@ -39,7 +39,7 @@
         var ws = new WebSocket('ws://localhost:18080/web/socket/dashboard');
 
         ws.onopen = function (evt) {
-            console.log('Connection open ...');
+            // console.log('Connection open ...');
 
             // TODO 就是个Demo而已
             // var message = {
@@ -57,7 +57,7 @@
         };
 
         ws.onmessage = function (evt) {
-            console.log('Received Message: ' + evt.data);
+            // console.log('Received Message: ' + evt.data);
 
             let messageObject = JSON.parse(evt.data);
 
@@ -118,7 +118,7 @@
             var latestPrice = args['latestPrice'];
 
             validlyTradeList.forEach(element => {
-                let message = '最新净值: ' + latestPrice + ', 确认净值: ' + element['price'] + ', 交易金额: ' + element['tradeAmount'];
+                let message = '最新净值: ' + latestPrice + ', 确认净值: ' + element['price'] + ', 持有份额: ' + element['tradeNumber'];
 
                 message += ', 持有天数: ' + element['days'] + ', 收益率: ' + element['yield'];
 
