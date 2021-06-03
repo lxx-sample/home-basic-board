@@ -10,19 +10,20 @@
         <id column="trade_type" property="tradeType" jdbcType="VARCHAR"/>
         <id column="trade_amount" property="tradeAmount" jdbcType="NUMERIC"/>
         <id column="trade_date" property="tradeDate" jdbcType="VARCHAR"/>
+        <id column="trade_number" property="tradeNumber" jdbcType="NUMERIC"/>
         <id column="price" property="price" jdbcType="NUMERIC"/>
         <id column="create_time" property="createTime" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Select_Column">
-        id, fund_info_id, name, code, trade_type, trade_amount, trade_date, price, create_time
+        id, fund_info_id, name, code, trade_type, trade_amount, trade_date, trade_number, price, create_time
     </sql>
 
     <select id="findAll" resultMap="BaseResultMap">
         SELECT <include refid="Base_Select_Column" />
         FROM t_fund_trade_history
         WHERE fund_info_id=#{fundInfoId}
-        ORDER BY trade_date DESC, id DESC
+        ORDER BY trade_date asc, id asc
     </select>
 
 </mapper>

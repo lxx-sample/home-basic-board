@@ -28,7 +28,11 @@ public class FundTradeHistory {
      */
     private String tradeDate;
     /**
-     * 成交净值
+     * 确认份额
+     */
+    private String tradeNumber;
+    /**
+     * 确认净值
      */
     private BigDecimal price;
     private String createTime;
@@ -87,6 +91,14 @@ public class FundTradeHistory {
 
     public void setTradeDate(String tradeDate) {
         this.tradeDate = tradeDate;
+    }
+
+    public String getTradeNumber() {
+        return tradeNumber;
+    }
+
+    public void setTradeNumber(String tradeNumber) {
+        this.tradeNumber = tradeNumber;
     }
 
     public BigDecimal getPrice() {
