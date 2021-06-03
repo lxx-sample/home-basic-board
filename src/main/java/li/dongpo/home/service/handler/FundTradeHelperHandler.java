@@ -77,6 +77,7 @@ public class FundTradeHelperHandler {
         }
 
         Map<String, Object> responseAttributes = Map.of(
+                "latestPrice", latestPriceHistory.getPrice(),
                 "totalNumber", totalNumber,
                 "totalAmount", totalNumber.multiply(latestPriceHistory.getPrice()),
                 "validlyTradeList", validlyTradeListResponse
