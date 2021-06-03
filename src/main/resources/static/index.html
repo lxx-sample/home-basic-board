@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能中控</title>
+</head>
+
+<body>
+    <div id="uuid"></div>
+    <div id="main">
+        <div id="dashboard">
+            首页
+            <div id="weather">
+
+            </div>
+        </div>
+        <div id="dashboard_1">
+            二级页
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/3.3.0/crypto-js.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="/message-handler.js"></script>
+    <script>
+        var PanelIndex = [
+            "dashboard",
+            "dashboard_1",
+        ];
+
+        var SystemInfo = {
+            "uuid": ""
+        };
+
+        var ws = new WebSocket('ws://localhost:18080/web/socket/dashboard');
+
+        ws.onopen = function (evt) {
+            console.log('Connection open ...');
+
+            // TODO 就是个Demo而已
+            // var message = {
+            //     "handler": "li.dongpo.home.service.handler.SystemHandler",
+            //     "method": "echo",
+            //     "args": { "timestamp": new Date().getTime() }
+            // };
+            // ws.send(JSON.stringify(message));
+            var message = {
+                "handler": "li.dongpo.home.service.handler.FundTradeHelperHandler",
+                "method": "calc",
+                "args": { "fundInfoId": 1 }
+            };
+            ws.send(JSON.stringify(message));
+        };
+
+        ws.onmessage = function (evt) {
+            console.log('Received Message: ' + evt.data);
+
+            let messageObject = JSON.parse(evt.data);
+
+            if (messageObject && messageObject['handler'] && messageObject['method']) {
+
+                let handler = messageObject['handler'];
+                let method = messageObject['method'];
+
+                let action = MessageHandlerManager.get(handler, method);
+                if (action) {
+                    action(messageObject['args']);
+                }
+            }
+
+        };
+
+        ws.onclose = function (evt) {
+            console.log('Connection closed.');
+        };
+
+
+        function closeAllPanel() {
+            $("#main > div").each(function () {
+                $(this).hide();
+            });
+        }
+        function openPanel(index) {
+            closeAllPanel();
+
+            $('#main #' + PanelIndex[index]).show();
+        }
+
+        (function () {
+            openPanel(0);
+        })();
+
+        // 获取设备的uuid,用于在页面上展示
+        MessageHandlerManager.registerHandler('li.dongpo.home.service.handler.SystemHandler', 'uuid', function (args) {
+            SystemInfo['uuid'] = args['uuid'];
+
+            $('#uuid').text('当前设备: ' + SystemInfo['uuid']);
+        });
+        MessageHandlerManager.registerHandler('li.dongpo.home.service.handler.SystemHandler', 'time', function (args) {
+            console.log(args['datetime'])
+
+        });
+
+        MessageHandlerManager.registerHandler('li.dongpo.home.service.handler.SystemHandler', 'echo', function (args) {
+            // do nothing
+        });
+
+        MessageHandlerManager.registerHandler('li.dongpo.home.service.handler.SystemHandler', 'panel', function (args) {
+            openPanel(args['panel'])
+        });
+
+        MessageHandlerManager.registerHandler('li.dongpo.home.service.handler.FundTradeHelperHandler', 'calc', function (args) {
+            var validlyTradeList = args['validlyTradeList'];
+            var latestPrice = args['latestPrice'];
+
+            validlyTradeList.forEach(element => {
+                let message = '最新净值: ' + latestPrice + ', 确认净值: ' + element['price'] + ', 交易金额: ' + element['tradeAmount'];
+
+                message += ', 持有天数: ' + element['days'] + ', 收益率: ' + element['yield'];
+
+                console.log(message)
+                // console.log(element)
+            });
+        });
+
+    </script>
+</body>
+
+</html>
