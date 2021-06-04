@@ -39,3 +39,4 @@ out/
 
 **/application-dev.properties
 
+src/main/resources/static/angular
