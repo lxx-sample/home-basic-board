@@ -1,5 +1,6 @@
 package li.dongpo.home.service.handler;
 
+import li.dongpo.home.annotation.HandlerMapping;
 import li.dongpo.home.manager.RequestContextHolder;
 import li.dongpo.home.model.FundPriceHistory;
 import li.dongpo.home.model.FundTradeHistory;
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2021/5/28
  */
 @Component
+@HandlerMapping("/fund/trade/helper")
 public class FundTradeHelperHandler {
     private static final Logger logger = LoggerFactory.getLogger(FundTradeHelperHandler.class);
 
@@ -40,15 +42,14 @@ public class FundTradeHelperHandler {
     @Autowired
     private FundPriceHistoryRepository fundPriceHistoryRepository;
 
-    public MessageObject calc() {
+    @HandlerMapping("/calc")
+    public MessageObject calc(long fundInfoId) {
         MessageObject request = RequestContextHolder.getRequest();
 
-        long id = MapUtils.getLong(request.getArgs(), "fundInfoId", 0L);
-
         // 所有交易记录
-        List<FundTradeHistory> fundTradeHistoryList = fundTradeHistoryRepository.findAll(id);
+        List<FundTradeHistory> fundTradeHistoryList = fundTradeHistoryRepository.findAll(fundInfoId);
         // 最新净值
-        FundPriceHistory latestPriceHistory = fundPriceHistoryRepository.findLatestPrice(id, 1).get(0);
+        FundPriceHistory latestPriceHistory = fundPriceHistoryRepository.findLatestPrice(fundInfoId, 1).get(0);
         // 持有份额统计
         BigDecimal totalNumber = BigDecimal.ZERO;
 
@@ -83,7 +84,7 @@ public class FundTradeHelperHandler {
                 "validlyTradeList", validlyTradeListResponse
         );
 
-        return new MessageObject(FundTradeHelperHandler.class, "calc", responseAttributes);
+        return new MessageObject(request.getPath(), responseAttributes);
     }
 
     private BigDecimal decideChargeRate(LocalDate tradeDate) {

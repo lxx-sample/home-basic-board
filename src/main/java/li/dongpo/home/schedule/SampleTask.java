@@ -35,7 +35,7 @@ public class SampleTask {
             Session session = WebSocketSessionManager.get(device);
 
             Map<String, Object> args = Map.of("panel", new Random().nextInt(2));
-            MessageObject messageObject = new MessageObject(SystemHandler.class, "panel", args);
+            MessageObject messageObject = new MessageObject("/system/handler/panel", args);
 
             MessageHandlerExecutor.Task task = new MessageHandlerExecutor.Task(messageObject, session);
             MessageHandlerExecutor.submit(task);

@@ -43,15 +43,13 @@
 
             // TODO 就是个Demo而已
             // var message = {
-            //     "handler": "li.dongpo.home.service.handler.SystemHandler",
-            //     "method": "echo",
+            //     "path": "/fund/trade/helper/echo",
             //     "args": { "timestamp": new Date().getTime() }
             // };
             // ws.send(JSON.stringify(message));
             var message = {
-                "handler": "li.dongpo.home.service.handler.FundTradeHelperHandler",
-                "method": "calc",
-                "args": { "fundInfoId": 1 }
+                "path": "/fund/trade/helper/calc",
+                "args": { "fundInfoId": "1" }
             };
             ws.send(JSON.stringify(message));
         };
@@ -61,12 +59,11 @@
 
             let messageObject = JSON.parse(evt.data);
 
-            if (messageObject && messageObject['handler'] && messageObject['method']) {
+            if (messageObject && messageObject['path']) {
 
-                let handler = messageObject['handler'];
-                let method = messageObject['method'];
+                let handler = messageObject['path'];
 
-                let action = MessageHandlerManager.get(handler, method);
+                let action = MessageHandlerManager.get(handler);
                 if (action) {
                     action(messageObject['args']);
                 }
@@ -95,25 +92,24 @@
         })();
 
         // 获取设备的uuid,用于在页面上展示
-        MessageHandlerManager.registerHandler('li.dongpo.home.service.handler.SystemHandler', 'uuid', function (args) {
+        MessageHandlerManager.registerHandler('/system/handler/uuid', function (args) {
             SystemInfo['uuid'] = args['uuid'];
 
             $('#uuid').text('当前设备: ' + SystemInfo['uuid']);
         });
-        MessageHandlerManager.registerHandler('li.dongpo.home.service.handler.SystemHandler', 'time', function (args) {
+        MessageHandlerManager.registerHandler('/system/handler/datetime', function (args) {
             console.log(args['datetime'])
-
         });
 
-        MessageHandlerManager.registerHandler('li.dongpo.home.service.handler.SystemHandler', 'echo', function (args) {
+        MessageHandlerManager.registerHandler('/system/handler/echo', function (args) {
             // do nothing
         });
 
-        MessageHandlerManager.registerHandler('li.dongpo.home.service.handler.SystemHandler', 'panel', function (args) {
+        MessageHandlerManager.registerHandler('/system/handler/panel', function (args) {
             openPanel(args['panel'])
         });
 
-        MessageHandlerManager.registerHandler('li.dongpo.home.service.handler.FundTradeHelperHandler', 'calc', function (args) {
+        MessageHandlerManager.registerHandler('/fund/trade/helper/calc', function (args) {
             var validlyTradeList = args['validlyTradeList'];
             var latestPrice = args['latestPrice'];
 

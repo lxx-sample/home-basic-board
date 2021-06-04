@@ -8,33 +8,23 @@ import java.util.Map;
  */
 public class MessageObject {
 
-    private String handler;
-    private String method;
+    private String path;
     private Map<String, Object> args;
 
     public MessageObject() {
     }
 
-    public MessageObject(Class<?> clazz, String method, Map<String, Object> args) {
-        this.handler = clazz.getCanonicalName();
-        this.method = method;
+    public MessageObject(String path, Map<String, Object> args) {
+        this.path = path;
         this.args = args;
     }
 
-    public String getHandler() {
-        return handler;
+    public String getPath() {
+        return path;
     }
 
-    public void setHandler(String handler) {
-        this.handler = handler;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public Map<String, Object> getArgs() {

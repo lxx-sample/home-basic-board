@@ -31,7 +31,7 @@ public class WebSocketDashboardController {
         logger.info("online, uuid={}", uuid);
 
         Map<String, Object> args = Map.of("uuid", uuid);
-        MessageObject messageObject = new MessageObject(SystemHandler.class, "uuid", args);
+        MessageObject messageObject = new MessageObject("/system/handler/uuid", args);
 
         MessageHandlerExecutor.Task task = new MessageHandlerExecutor.Task(messageObject, session);
         MessageHandlerExecutor.submit(task);
