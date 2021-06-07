@@ -30,7 +30,7 @@ import { Component, OnInit } from "@angular/core";
         let map = new Map();
         if (messageObject['args']) {
           for (let k of Object.keys(messageObject['args'])) {
-            map.set(k,messageObject['args'][k]);
+            map.set(k, messageObject['args'][k]);
           }
         }
 
