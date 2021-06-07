@@ -1,54 +1,49 @@
 import { Component, OnInit } from "@angular/core";
 
-export class WebSocketMessageRouter {
+(function () {
+  let ws = new WebSocket('ws://localhost:18080/web/socket/dashboard');
+  ws.onopen = function (evt) {
+    // console.log('Connection open ...');
 
-  private static ws = new WebSocket('ws://localhost:18080/web/socket/dashboard');
-
-
-  constructor() {
-    WebSocketMessageRouter.ws.onopen = function (evt) {
-      // console.log('Connection open ...');
-
-      // TODO 就是个Demo而已
-      // var message = {
-      //     "path": "/fund/trade/helper/echo",
-      //     "args": { "timestamp": new Date().getTime() }
-      // };
-      // ws.send(JSON.stringify(message));
-      var message = {
-        "path": "/fund/trade/helper/calc",
-        "args": { "fundInfoId": "1" }
-      };
-      WebSocketMessageRouter.ws.send(JSON.stringify(message));
+    // TODO 就是个Demo而已
+    // var message = {
+    //     "path": "/fund/trade/helper/echo",
+    //     "args": { "timestamp": new Date().getTime() }
+    // };
+    // ws.send(JSON.stringify(message));
+    var message = {
+      "path": "/fund/trade/helper/calc",
+      "args": { "fundInfoId": "1" }
     };
+    ws.send(JSON.stringify(message));
+  };
 
-    WebSocketMessageRouter.ws.onmessage = function (evt) {
-      console.log('Received Message: ' + evt.data);
+  ws.onmessage = function (evt) {
+    let messageObject = JSON.parse(evt.data);
 
-      debugger
+    if (messageObject && messageObject['path']) {
 
-      let messageObject = JSON.parse(evt.data);
+      let handler = messageObject['path'];
 
-      if (messageObject && messageObject['path']) {
-
-        let handler = messageObject['path'];
-
-        let action = MessageHandlerManager.get(handler);
-        if (action) {
-          action(messageObject['args']);
+      let action = MessageHandlerManager.get(handler);
+      if (action) {
+        let map = new Map();
+        if (messageObject['args']) {
+          for (let k of Object.keys(messageObject['args'])) {
+            map.set(k,messageObject['args'][k]);
+          }
         }
+
+        action(map);
       }
+    }
 
-    };
+  };
 
-    WebSocketMessageRouter.ws.onclose = function (evt) {
-      console.log('Connection closed.');
-    };
-  }
-
-
-}
-
+  ws.onclose = function (evt) {
+    console.log('Connection closed.');
+  };
+})();
 
 export class MessageHandlerManager {
 
