@@ -5,12 +5,31 @@
 <div>
   <mat-grid-list cols="6">
     <!-- <mat-grid-tile cols="1" [colspan]="1" [rowspan]="1">1</mat-grid-tile> -->
-    <mat-grid-tile cols="1" [colspan]="2" [rowspan]="2" [style.background]="background">1</mat-grid-tile>
+    <mat-grid-tile cols="1" [colspan]="2" [rowspan]="2" [style.background]="background">
+      {{ panel | async }}
+    </mat-grid-tile>
     <mat-grid-tile cols="1" [style.background]="background">2</mat-grid-tile>
     <mat-grid-tile cols="1" [style.background]="background">3</mat-grid-tile>
     <mat-grid-tile cols="1" [colspan]="2" [rowspan]="1">
       <div>
-        <div *ngFor="let c of calc | async"> {{ c }} </div>
+        <table>
+          <thead>
+            <td width="80">最新净值</td>
+            <td width="80">确认净值</td>
+            <td width="80">持有份额</td>
+            <td width="80">持有天数</td>
+            <td width="80">交易金额</td>
+            <td width="80">收益率</td>
+          </thead>
+          <tbody *ngFor="let c of calc | async">
+            <td>{{ c.get('latestPrice') }}</td>
+            <td>{{ c.get('price') }}</td>
+            <td>{{ c.get('tradeNumber') }}</td>
+            <td>{{ c.get('days') }}</td>
+            <td>{{ c.get('totalAmount') }}</td>
+            <td>{{ c.get('yield') }}</td>
+          </tbody>
+        </table>
       </div>
     </mat-grid-tile>
     <mat-grid-tile cols="1" [style.background]="background">5</mat-grid-tile>
