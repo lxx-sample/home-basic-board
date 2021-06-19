@@ -1,12 +1,12 @@
 <mat-toolbar color="primary">
-  <span>设备编码: {{ uuid | async }}</span>
+  <span>设备编码: {{ uuid }}</span>
 </mat-toolbar>
 
 <div>
   <mat-grid-list cols="6">
     <!-- <mat-grid-tile cols="1" [colspan]="1" [rowspan]="1">1</mat-grid-tile> -->
     <mat-grid-tile cols="1" [colspan]="2" [rowspan]="2" [style.background]="background">
-      {{ panel | async }}
+      {{ panel }}
     </mat-grid-tile>
     <mat-grid-tile cols="1" [style.background]="background">2</mat-grid-tile>
     <mat-grid-tile cols="1" [style.background]="background">3</mat-grid-tile>
@@ -21,13 +21,15 @@
             <td width="80">交易金额</td>
             <td width="80">收益率</td>
           </thead>
-          <tbody *ngFor="let c of calc | async">
-            <td>{{ c.get('latestPrice') }}</td>
-            <td>{{ c.get('price') }}</td>
-            <td>{{ c.get('tradeNumber') }}</td>
-            <td>{{ c.get('days') }}</td>
-            <td>{{ c.get('totalAmount') }}</td>
-            <td>{{ c.get('yield') }}</td>
+          <tbody *ngFor="let c of fundTradeHistoryList">
+            <tr [style.background]="c.get('bg')">
+              <td>{{ c.get('latestPrice') }}</td>
+              <td>{{ c.get('price') }}</td>
+              <td>{{ c.get('tradeNumber') }}</td>
+              <td>{{ c.get('days') }}</td>
+              <td>{{ c.get('totalAmount') }}</td>
+              <td>{{ c.get('yield') }}</td>
+            </tr>
           </tbody>
         </table>
       </div>
