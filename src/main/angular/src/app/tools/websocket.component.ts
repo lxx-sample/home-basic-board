@@ -2,7 +2,14 @@ import { Component, OnInit } from "@angular/core";
 import { Subject } from "rxjs";
 
 (function () {
-  let ws = new WebSocket('ws://localhost:18080/web/socket/dashboard');
+  console.log(location)
+  let url = '/web/socket/dashboard';
+  if (location.hostname == 'localhost') {
+    url = 'ws://localhost:18080' + url;
+  } else {
+    url = 'ws://' + location.hostname + ':' + location.port + url;
+  }
+  let ws = new WebSocket(url);
   ws.onopen = function (evt) {
     // console.log('Connection open ...');
 
