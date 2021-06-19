@@ -44,7 +44,6 @@ export class AppComponent {
 
       var validlyTradeList = args.get('validlyTradeList');
       var latestPrice = args.get('latestPrice');
-      // let helper: Map<string, string>[] = [];
       let helper: FundTradeHistoryObject[] = [];
 
       Object.keys(validlyTradeList).forEach(k => {
