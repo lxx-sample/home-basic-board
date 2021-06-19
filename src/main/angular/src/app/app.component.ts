@@ -13,7 +13,8 @@ export class AppComponent {
 
   uuid: string = "";
   panel: string = "";
-  fundTradeHistoryList: Map<string, string>[] = [];
+  fundTradeHistoryList: FundTradeHistoryObject[] = [];
+  fundTradeHistoryColumns = ['latestPrice', 'price', 'tradeNumber', 'days', 'totalAmount', 'yield']
 
   constructor(private changeDetectorRef: ChangeDetectorRef) {
     this.registerDeviceUuidHandler();
@@ -43,34 +44,26 @@ export class AppComponent {
 
       var validlyTradeList = args.get('validlyTradeList');
       var latestPrice = args.get('latestPrice');
-      let helper: Map<string, string>[] = [];
+      // let helper: Map<string, string>[] = [];
+      let helper: FundTradeHistoryObject[] = [];
 
       Object.keys(validlyTradeList).forEach(k => {
         let element = validlyTradeList[k];
 
-        let each = new Map();
-        // 最新净值
-        each.set("latestPrice", latestPrice);
-        // 确认净值
-        each.set("price", element['price']);
-        // 持有份额
-        each.set("tradeNumber", element['tradeNumber']);
-        // 持有天数
-        each.set("days", element['days']);
-        // 收益率
-        let _yield = element['yield'];
-        each.set("yield", _yield);
-        if (parseFloat(_yield) > 0) {
-          each.set("bg", "red");
-        } else {
-          each.set("bg", "green");
-        }
-        // 交易金额
         let totalAmount = (element['price'] * element['tradeNumber']).toFixed(2);
-        each.set("totalAmount", totalAmount);
-        
+        let background = parseFloat(element['yield']) > 0 ? "red" : "green";
 
-        helper.push(each)
+        let each = {
+          latestPrice: latestPrice, // 最新净值
+          price: element['price'], // 确认净值
+          tradeNumber: element['tradeNumber'], // 持有份额
+          days: element['days'], // 持有天数
+          yield: element['yield'], // 收益率
+          background: background,
+          totalAmount: totalAmount // 交易金额
+        };
+
+        helper.push(each);
       });
 
       this.fundTradeHistoryList = helper;
@@ -79,4 +72,14 @@ export class AppComponent {
   }
 
   background = "lightgreen"
+}
+
+export interface FundTradeHistoryObject {
+  latestPrice: string,
+  price: string,
+  tradeNumber: string
+  days: string,
+  yield: string,
+  background: string,
+  totalAmount: string
 }
