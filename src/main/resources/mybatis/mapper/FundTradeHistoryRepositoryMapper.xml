@@ -12,11 +12,12 @@
         <id column="trade_date" property="tradeDate" jdbcType="VARCHAR"/>
         <id column="trade_number" property="tradeNumber" jdbcType="NUMERIC"/>
         <id column="price" property="price" jdbcType="NUMERIC"/>
+        <id column="buy_ref" property="buyRef" jdbcType="VARCHAR"/>
         <id column="create_time" property="createTime" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Select_Column">
-        id, fund_info_id, name, code, trade_type, trade_amount, trade_date, trade_number, price, create_time
+        id, fund_info_id, name, code, trade_type, trade_amount, trade_date, trade_number, price, buy_ref, create_time
     </sql>
 
     <select id="findAll" resultMap="BaseResultMap">

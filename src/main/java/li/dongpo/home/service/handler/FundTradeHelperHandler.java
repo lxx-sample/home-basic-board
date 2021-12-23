@@ -112,31 +112,18 @@ public class FundTradeHelperHandler {
         List<FundTradeHistory> buyTradeHistoryList = new LinkedList<>();
         List<FundTradeHistory> sellTradeHistoryList = new LinkedList<>();
 
-        BigDecimal total = BigDecimal.ZERO;
-
+        // 1. 拆分为买入和卖出记录
         for (FundTradeHistory fundTradeHistory : tradeHistoryList) {
             if (StringUtils.equals(fundTradeHistory.getTradeType(), tradeType_buy)) {
                 buyTradeHistoryList.add(fundTradeHistory);
-
-                total = total.add(new BigDecimal(fundTradeHistory.getTradeNumber()));
             } else {
                 sellTradeHistoryList.add(fundTradeHistory);
-
-                total = total.subtract(new BigDecimal(fundTradeHistory.getTradeNumber()));
-            }
-        }
-
-        for (FundTradeHistory history : sellTradeHistoryList) {
-            if (history.getId() == 7) {
-                history.setBuyRef("1, 2, 3, 4");
-            }
-            if (history.getId() == 11) {
-                history.setBuyRef("4, 5, 6, 8");
             }
         }
 
         Splitter splitter = Splitter.on(",").trimResults().omitEmptyStrings();
 
+        // 删除所有卖出的份额对应的记录
         for (FundTradeHistory history : sellTradeHistoryList) {
             List<String> buyRefList = splitter.splitToList(history.getBuyRef());
 
@@ -147,16 +134,15 @@ public class FundTradeHelperHandler {
                 Iterator<FundTradeHistory> iterator = buyTradeHistoryList.iterator();
                 while (iterator.hasNext()) {
                     FundTradeHistory buy = iterator.next();
-                    if (StringUtils.equals(buy.getId() + "", buyRef)) {
+                    if (StringUtils.equals(buy.getId() + "", buyRef)) { // 匹配上了对应的记录
                         BigDecimal buyTradeNumber = new BigDecimal(buy.getTradeNumber());
 
                         if (tradeNumber.compareTo(buyTradeNumber) < 0) {
+                            // TODO 只修改了份额没有修改成交价
                             buy.setTradeNumber(buyTradeNumber.subtract(tradeNumber).toPlainString());
-
                             tradeNumber = BigDecimal.ZERO;
-                        } else {
+                        } else { // 直接删除对应的记录
                             tradeNumber = tradeNumber.subtract(buyTradeNumber);
-
                             iterator.remove();
                         }
 
