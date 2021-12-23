@@ -25,7 +25,7 @@ import java.util.List;
  * @author dongpo.li
  * @date 2021/5/28
  */
-@Component
+//@Component
 public class FundInfoTask {
     private static final Logger logger = LoggerFactory.getLogger(FundInfoTask.class);
 
