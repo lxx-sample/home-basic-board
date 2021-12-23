@@ -1,5 +1,6 @@
 package li.dongpo.home.service.handler;
 
+import com.google.common.base.Splitter;
 import li.dongpo.home.annotation.HandlerMapping;
 import li.dongpo.home.manager.RequestContextHolder;
 import li.dongpo.home.model.FundPriceHistory;
@@ -23,10 +24,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author dongpo.li
@@ -107,40 +107,68 @@ public class FundTradeHelperHandler {
     }
 
     private List<FundTradeHistory> filterValidlyTrade(List<FundTradeHistory> tradeHistoryList) {
-
         String tradeType_buy = FundTradeHistory.TradeTypeEnum.BUY.name();
 
-        List<FundTradeHistory> buyTradeHistoryList = new ArrayList<>();
-        List<FundTradeHistory> sellTradeHistoryList = new ArrayList<>();
+        List<FundTradeHistory> buyTradeHistoryList = new LinkedList<>();
+        List<FundTradeHistory> sellTradeHistoryList = new LinkedList<>();
+
+        BigDecimal total = BigDecimal.ZERO;
 
         for (FundTradeHistory fundTradeHistory : tradeHistoryList) {
             if (StringUtils.equals(fundTradeHistory.getTradeType(), tradeType_buy)) {
                 buyTradeHistoryList.add(fundTradeHistory);
+
+                total = total.add(new BigDecimal(fundTradeHistory.getTradeNumber()));
             } else {
                 sellTradeHistoryList.add(fundTradeHistory);
+
+                total = total.subtract(new BigDecimal(fundTradeHistory.getTradeNumber()));
             }
         }
 
-        for (FundTradeHistory fundTradeHistory : sellTradeHistoryList) {
-            BigDecimal currentNumber = new BigDecimal(fundTradeHistory.getTradeNumber());
+        for (FundTradeHistory history : sellTradeHistoryList) {
+            if (history.getId() == 7) {
+                history.setBuyRef("1, 2, 3, 4");
+            }
+            if (history.getId() == 11) {
+                history.setBuyRef("4, 5, 6, 8");
+            }
+        }
 
-            while (currentNumber.compareTo(BigDecimal.ZERO) > 0) {
-                FundTradeHistory history = buyTradeHistoryList.get(0);
-                BigDecimal currentBuyNumber = new BigDecimal(history.getTradeNumber());
+        Splitter splitter = Splitter.on(",").trimResults().omitEmptyStrings();
 
-                if (currentNumber.compareTo(currentBuyNumber) >= 0) {
-                    currentNumber = currentNumber.subtract(currentBuyNumber);
-                    buyTradeHistoryList.remove(0);
-                } else {
-                    history.setTradeNumber(currentBuyNumber.subtract(currentNumber).toString());
-                    currentNumber = BigDecimal.ZERO;
+        for (FundTradeHistory history : sellTradeHistoryList) {
+            List<String> buyRefList = splitter.splitToList(history.getBuyRef());
+
+            BigDecimal tradeNumber = new BigDecimal(history.getTradeNumber());
+
+            for (String buyRef : buyRefList) {
+
+                Iterator<FundTradeHistory> iterator = buyTradeHistoryList.iterator();
+                while (iterator.hasNext()) {
+                    FundTradeHistory buy = iterator.next();
+                    if (StringUtils.equals(buy.getId() + "", buyRef)) {
+                        BigDecimal buyTradeNumber = new BigDecimal(buy.getTradeNumber());
+
+                        if (tradeNumber.compareTo(buyTradeNumber) < 0) {
+                            buy.setTradeNumber(buyTradeNumber.subtract(tradeNumber).toPlainString());
+
+                            tradeNumber = BigDecimal.ZERO;
+                        } else {
+                            tradeNumber = tradeNumber.subtract(buyTradeNumber);
+
+                            iterator.remove();
+                        }
+
+                    }
                 }
 
             }
 
+
         }
 
-        return buyTradeHistoryList;
+        return buyTradeHistoryList.stream().collect(Collectors.toUnmodifiableList());
     }
 
 

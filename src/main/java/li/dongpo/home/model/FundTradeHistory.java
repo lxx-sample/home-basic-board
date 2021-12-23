@@ -36,6 +36,11 @@ public class FundTradeHistory {
      */
     private BigDecimal price;
     private String createTime;
+    /**
+     * 对应的买入记录,卖出记录必须对应买入记录
+     * 卖出记录才有,买入记录的话为空
+     */
+    private String buyRef;
 
     public long getId() {
         return id;
@@ -115,6 +120,14 @@ public class FundTradeHistory {
 
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
+    }
+
+    public String getBuyRef() {
+        return buyRef;
+    }
+
+    public void setBuyRef(String buyRef) {
+        this.buyRef = buyRef;
     }
 
     public enum TradeTypeEnum {
