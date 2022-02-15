@@ -70,7 +70,7 @@ export class AppComponent {
     })
   }
 
-  background = "lightgreen"
+  background = "white"
 }
 
 export interface FundTradeHistoryObject {

@@ -3,13 +3,12 @@ package li.dongpo.home.service.handler;
 import com.google.common.base.Splitter;
 import li.dongpo.home.annotation.HandlerMapping;
 import li.dongpo.home.manager.RequestContextHolder;
-import li.dongpo.home.model.FundPriceHistory;
 import li.dongpo.home.model.FundTradeHistory;
 import li.dongpo.home.model.dto.FundTradeHistoryDto;
 import li.dongpo.home.model.dto.MessageObject;
 import li.dongpo.home.repository.FundPriceHistoryRepository;
 import li.dongpo.home.repository.FundTradeHistoryRepository;
-import org.apache.commons.collections4.MapUtils;
+import li.dongpo.home.utils.DateTimeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -43,13 +41,11 @@ public class FundTradeHelperHandler {
     private FundPriceHistoryRepository fundPriceHistoryRepository;
 
     @HandlerMapping("/calc")
-    public MessageObject calc(long fundInfoId) {
+    public MessageObject calc(long fundInfoId, String latestPrice, String reckonPrice) {
         MessageObject request = RequestContextHolder.getRequest();
 
         // 所有交易记录
         List<FundTradeHistory> fundTradeHistoryList = fundTradeHistoryRepository.findAll(fundInfoId);
-        // 最新净值
-        FundPriceHistory latestPriceHistory = fundPriceHistoryRepository.findLatestPrice(fundInfoId, 1).get(0);
         // 持有份额统计
         BigDecimal totalNumber = BigDecimal.ZERO;
 
@@ -64,27 +60,37 @@ public class FundTradeHelperHandler {
             FundTradeHistoryDto dto = new FundTradeHistoryDto();
             BeanUtils.copyProperties(tradeHistory, dto);
 
-            LocalDate tradeDate = LocalDate.parse(tradeHistory.getTradeDate(), DateTimeFormatter.ISO_LOCAL_DATE);
+            LocalDate tradeDate = DateTimeUtils.parseLocalDate(tradeHistory.getTradeDate());
             long days = days(tradeDate);
             dto.setDays(days);
 
-            BigDecimal yield = latestPriceHistory.getPrice()
-                    .subtract(tradeHistory.getPrice())
-                    .divide(tradeHistory.getPrice(), 6, RoundingMode.HALF_DOWN)
-                    .multiply(BigDecimal.valueOf(100));
+            BigDecimal yield = new BigDecimal(reckonPrice).subtract(tradeHistory.getPrice())
+                    .divide(new BigDecimal(latestPrice), 2, RoundingMode.FLOOR);
             dto.setYield(yield);
 
             validlyTradeListResponse.add(dto);
         }
 
         Map<String, Object> responseAttributes = Map.of(
-                "latestPrice", latestPriceHistory.getPrice(),
+//                "avgPrice", calcAvgPrice(validlyTradeList),
                 "totalNumber", totalNumber,
-                "totalAmount", totalNumber.multiply(latestPriceHistory.getPrice()),
+                "totalAmount", totalNumber.multiply(new BigDecimal(latestPrice)),
                 "validlyTradeList", validlyTradeListResponse
         );
 
         return new MessageObject(request.getPath(), responseAttributes);
+    }
+
+    private BigDecimal calcAvgPrice(List<FundTradeHistory> fundTradeHistoryList) {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal tradeNumber = BigDecimal.ZERO;
+
+        for (FundTradeHistory history : fundTradeHistoryList) {
+            totalAmount = totalAmount.add(new BigDecimal(history.getTradeAmount()));
+            tradeNumber = tradeNumber.add(new BigDecimal(history.getTradeNumber()));
+        }
+
+        return totalAmount.divide(tradeNumber, 2, RoundingMode.HALF_DOWN);
     }
 
     private BigDecimal decideChargeRate(LocalDate tradeDate) {
@@ -138,8 +144,8 @@ public class FundTradeHelperHandler {
                         BigDecimal buyTradeNumber = new BigDecimal(buy.getTradeNumber());
 
                         if (tradeNumber.compareTo(buyTradeNumber) < 0) {
-                            // TODO 只修改了份额没有修改成交价
                             buy.setTradeNumber(buyTradeNumber.subtract(tradeNumber).toPlainString());
+                            buy.setTradeAmount(new BigDecimal(buy.getTradeAmount()).subtract(tradeNumber).toPlainString());
                             tradeNumber = BigDecimal.ZERO;
                         } else { // 直接删除对应的记录
                             tradeNumber = tradeNumber.subtract(buyTradeNumber);

@@ -21,7 +21,7 @@ import { Subject } from "rxjs";
     // ws.send(JSON.stringify(message));
     var message = {
       "path": "/fund/trade/helper/calc",
-      "args": { "fundInfoId": "1" }
+      "args": { "fundInfoId": "2", "latestPrice": "1.01", "reckonPrice": "1.02" }
     };
     ws.send(JSON.stringify(message));
   };
