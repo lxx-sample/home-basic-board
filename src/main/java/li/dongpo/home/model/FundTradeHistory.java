@@ -14,7 +14,7 @@ public class FundTradeHistory {
     private String name;
     /**
      * 交易类型
-     * 买入(BUY)/卖出(SELL)
+     * 买入(IN)/卖出(OUT)
      *
      * @see TradeTypeEnum#name()
      */
@@ -131,7 +131,7 @@ public class FundTradeHistory {
     }
 
     public enum TradeTypeEnum {
-        BUY, // 申购
-        SELL // 赎回
+        IN, // 申购
+        OUT // 赎回
     }
 }

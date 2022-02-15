@@ -113,7 +113,7 @@ public class FundTradeHelperHandler {
     }
 
     private List<FundTradeHistory> filterValidlyTrade(List<FundTradeHistory> tradeHistoryList) {
-        String tradeType_buy = FundTradeHistory.TradeTypeEnum.BUY.name();
+        String tradeType_buy = FundTradeHistory.TradeTypeEnum.IN.name();
 
         List<FundTradeHistory> buyTradeHistoryList = new LinkedList<>();
         List<FundTradeHistory> sellTradeHistoryList = new LinkedList<>();
