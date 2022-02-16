@@ -131,7 +131,7 @@ public class FundTradeHistory {
     }
 
     public enum TradeTypeEnum {
-        IN, // 申购
-        OUT // 赎回
+        BUY, // 申购
+        SELL // 赎回
     }
 }
