@@ -2,7 +2,7 @@ import { stringify } from '@angular/compiler/src/util';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Observable, of, Subscriber } from 'rxjs';
 
-import { MessageHandlerManager } from './tools/websocket.component'
+import { MessageHandlerManager, WebSocketClient } from './tools/websocket.component'
 
 @Component({
   selector: 'app-root',
@@ -14,7 +14,11 @@ export class AppComponent {
   uuid: string = "";
   panel: string = "";
   fundTradeHistoryList: FundTradeHistoryObject[] = [];
-  fundTradeHistoryColumns = ['latestPrice', 'price', 'tradeNumber', 'days', 'totalAmount', 'yield']
+  fundTradeHistoryColumns = ['price', 'tradeNumber', 'totalAmount', 'yield']
+
+  id = 2;
+  latestPrice = 1;
+  reckonPrice = 1;
 
   constructor(private changeDetectorRef: ChangeDetectorRef) {
     this.registerDeviceUuidHandler();
@@ -71,6 +75,14 @@ export class AppComponent {
   }
 
   background = "white"
+
+  submit() {
+    var message = {
+      "path": "/fund/trade/helper/calc",
+      "args": { "fundInfoId": this.id, "latestPrice": this.latestPrice, "reckonPrice": this.reckonPrice }
+    };
+    WebSocketClient.getInstance().send(JSON.stringify(message));
+  }
 }
 
 export interface FundTradeHistoryObject {

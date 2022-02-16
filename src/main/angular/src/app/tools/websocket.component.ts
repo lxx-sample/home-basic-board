@@ -10,6 +10,7 @@ import { Subject } from "rxjs";
     url = 'ws://' + location.hostname + ':' + location.port + url;
   }
   let ws = new WebSocket(url);
+
   ws.onopen = function (evt) {
     // console.log('Connection open ...');
 
@@ -19,11 +20,7 @@ import { Subject } from "rxjs";
     //     "args": { "timestamp": new Date().getTime() }
     // };
     // ws.send(JSON.stringify(message));
-    var message = {
-      "path": "/fund/trade/helper/calc",
-      "args": { "fundInfoId": "2", "latestPrice": "1.01", "reckonPrice": "1.02" }
-    };
-    ws.send(JSON.stringify(message));
+    WebSocketClient.createInstalce(ws);
   };
 
   ws.onmessage = function (evt) {
@@ -66,6 +63,20 @@ export class MessageHandlerManager {
     MessageHandlerManager.MESSAGE_HANDLER_MAPPING.set(path, subject);
 
     return subject;
+  }
+
+}
+
+export class WebSocketClient {
+
+  private static CLIENT_INSTANCE: WebSocket;
+
+  public static createInstalce = function(ws: WebSocket) {
+    WebSocketClient.CLIENT_INSTANCE = ws;
+  }
+
+  public static getInstance = function() {
+    return WebSocketClient.CLIENT_INSTANCE;
   }
 
 }

@@ -54,15 +54,21 @@ public class FundTradeHelperHandler {
 
         List<FundTradeHistoryDto> validlyTradeListResponse = new ArrayList<>(validlyTradeList.size());
 
+        // 可赎回份额(超过30天的)
+        BigDecimal enableTradeNumber = BigDecimal.ZERO;
+
         for (FundTradeHistory tradeHistory : validlyTradeList) {
             totalNumber = totalNumber.add(new BigDecimal(tradeHistory.getTradeNumber()));
 
             FundTradeHistoryDto dto = new FundTradeHistoryDto();
             BeanUtils.copyProperties(tradeHistory, dto);
 
-            LocalDate tradeDate = DateTimeUtils.parseLocalDate(tradeHistory.getTradeDate());
+            LocalDate tradeDate = DateTimeUtils.parseLocalDate(tradeHistory.getTradeDate() + " 00:00:00");
             long days = days(tradeDate);
-            dto.setDays(days);
+            if (days > 30) {
+                enableTradeNumber = enableTradeNumber.add(new BigDecimal(tradeHistory.getTradeNumber()));
+            }
+//            dto.setDays(days);
 
             BigDecimal yield = new BigDecimal(reckonPrice).subtract(tradeHistory.getPrice())
                     .divide(new BigDecimal(latestPrice), 2, RoundingMode.FLOOR);
@@ -75,7 +81,8 @@ public class FundTradeHelperHandler {
 //                "avgPrice", calcAvgPrice(validlyTradeList),
                 "totalNumber", totalNumber,
                 "totalAmount", totalNumber.multiply(new BigDecimal(latestPrice)),
-                "validlyTradeList", validlyTradeListResponse
+                "validlyTradeList", validlyTradeListResponse,
+                "enableTradeNumber", enableTradeNumber
         );
 
         return new MessageObject(request.getPath(), responseAttributes);
