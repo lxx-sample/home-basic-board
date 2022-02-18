@@ -7,19 +7,38 @@
     <!-- <mat-grid-tile cols="1" [colspan]="1" [rowspan]="1">1</mat-grid-tile> -->
     <mat-grid-tile cols="1" [colspan]="2" [rowspan]="1" [style.background]="background">
 
-      <div style="width: 100%; height: 100%;">
+      <div class="w-100 h-100">
         <mat-grid-list cols="2">
           <mat-grid-tile cols="1">
             <div>
-              id: <input type="text" name="id" id="id" [(ngModel)]="id" placeholder="id" /><br/>
-              最新净值: <input type="text" name="id" id="id" [(ngModel)]="latestPrice" placeholder="最新净值" /><br/>
-              估算净值: <input type="text" name="id" id="id" [(ngModel)]="reckonPrice" placeholder="估算净值" /><br/>
-              <button type="button" (click)="submit();">确定</button>
+              <div class="w-100">
+                <mat-form-field class="w-100">
+                  <mat-label>id</mat-label>
+                  <input matInput name="id" [(ngModel)]="id">
+                </mat-form-field>
+                <mat-form-field class="w-100">
+                  <mat-label>最新净值</mat-label>
+                  <input matInput name="latestPrice" [(ngModel)]="latestPrice">
+                </mat-form-field>
+                <mat-form-field class="w-100">
+                  <mat-label>估算净值</mat-label>
+                  <input matInput name="reckonPrice" [(ngModel)]="reckonPrice">
+                </mat-form-field>
+                <button mat-button (click)="submit();" class="w-100">确定</button>
+              </div>
+              <div class="w-100">
+                <!-- 持有份额: {{response['totalNumber']}}<br />
+                持有金额: {{response['totalAmount']}}<br />
+                可T份额: {{response['enableTradeNumber']}}<br /> -->
+                持有份额: {{totalNumber}}<br />
+                持有金额: {{totalAmount}}<br />
+                可T份额: {{enableTradeNumber}}<br />
+              </div>
             </div>
           </mat-grid-tile>
           <mat-grid-tile cols="1">
-            <div style="width: 100%; height: 100%; overflow-y: scroll;">
-              <table width="100%" mat-table [dataSource]="fundTradeHistoryList" class="mat-elevation-z24">
+            <div class="w-100 h-100" style="overflow-y: scroll;">
+              <table mat-table [dataSource]="fundTradeHistoryList" class="mat-elevation-z24 w-100">
                 <ng-container matColumnDef="latestPrice">
                   <th mat-header-cell *matHeaderCellDef> 最新净值 </th>
                   <td mat-cell *matCellDef="let element"> {{element.latestPrice}} </td>
@@ -45,7 +64,8 @@
                   <td mat-cell *matCellDef="let element"> {{element.yield}} </td>
                 </ng-container>
                 <tr mat-header-row *matHeaderRowDef="fundTradeHistoryColumns"></tr>
-                <tr mat-row [style.background]="row.background" *matRowDef="let row; columns: fundTradeHistoryColumns;"></tr>
+                <tr mat-row [style.background]="row.background" *matRowDef="let row; columns: fundTradeHistoryColumns;">
+                </tr>
               </table>
             </div>
           </mat-grid-tile>

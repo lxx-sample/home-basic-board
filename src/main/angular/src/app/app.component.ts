@@ -14,7 +14,11 @@ export class AppComponent {
   uuid: string = "";
   panel: string = "";
   fundTradeHistoryList: FundTradeHistoryObject[] = [];
-  fundTradeHistoryColumns = ['price', 'tradeNumber', 'totalAmount', 'yield']
+  fundTradeHistoryColumns = ['price', 'tradeNumber', 'totalAmount', 'yield'];
+  response: any = new Map();
+  totalNumber: any = "";
+  totalAmount: any = "";
+  enableTradeNumber: any = "";
 
   id = 2;
   latestPrice = 1;
@@ -71,6 +75,13 @@ export class AppComponent {
 
       this.fundTradeHistoryList = helper;
       this.changeDetectorRef.detectChanges();
+
+      this.response = args;
+      this.totalAmount = args.get('totalAmount');
+      this.totalNumber = args.get('totalNumber');
+      this.enableTradeNumber = args.get('enableTradeNumber');
+      this.changeDetectorRef.detectChanges();
+      // console.log(this.response)
     })
   }
 
